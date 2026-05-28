@@ -1,0 +1,99 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+*.png
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data files (potentially large)
+*.csv
+*.tsv
+*.parquet
+*.txt
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.mat
+*.db
+*.sqlite
+*.sqlite3
+
+# Model files (large)
+*.pt
+*.pth
+*.onnx
+*.pb
+*.tflite
+*.keras
+*.model
+*.bin
+*.safetensors
+*.ckpt
+*.checkpoint
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+
+# Logs and outputs
+*.log
+logs/
+output/
+outputs/
+results/
+figures/
+plots/
+ignore/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# MLflow / experiment tracking
+mlruns/
+mlartifacts/
+.mlflow/
+
+# DVC
+.dvc/cache/
+.dvc/tmp/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
