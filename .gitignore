@@ -29,7 +29,7 @@ ENV/
 *.txt
 *.h5
 *.hdf5
-*.npy
+*.pptx
 *.npz
 *.mat
 *.db
@@ -69,6 +69,7 @@ results/
 figures/
 plots/
 ignore/
+images/
 
 # OS
 .DS_Store
