@@ -58,7 +58,7 @@ ENV/
 *.7z
 *.gz
 *.bz2
-*.xz
+*.pdf
 
 # Logs and outputs
 *.log
