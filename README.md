@@ -27,7 +27,7 @@ El enfoque diferencial del proyecto es una arquitectura de **dos fases**:
 1. **Predicción individual**: el modelo predice un valor de RUL por cada lectura de sensor (observación individual dentro de un ciclo).
 2. **Agregación por ciclo**: las predicciones individuales de cada ciclo se agregan mediante la **mediana** (robusta a outliers de despegue/aterrizaje) para obtener la predicción definitiva del ciclo.
 
-Este diseño permite además obtener **incertidumbre gratuita**: la desviación estándar (`RUL_std`) de las predicciones intra-ciclo actúa como proxy de confianza del modelo en cada punto de la vida del motor.
+Este diseño permite además obtener **incertidumbre**: la desviación estándar (`RUL_std`) de las predicciones intra-ciclo actúa como proxy de confianza del modelo en cada punto de la vida del motor.
 
 ---
 
@@ -35,19 +35,19 @@ Este diseño permite además obtener **incertidumbre gratuita**: la desviación 
 
 Se construyen tres bloques de features sobre los sensores base:
 
-- **`pos_relativa`**: posición normalizada [0, 1] dentro del ciclo. Permite distinguir fases de vuelo (despegue, crucero, descenso) cuando los valores de sensor son similares.
-- **Rolling inter-ciclo**: tendencia acumulada de degradación. Media de cada ciclo con ventanas de 5 y 10 ciclos, más pendiente lineal (slope) sobre ventana de 10 ciclos.
+- **`pos_relativa`**: posición normalizada [0, 1] dentro del ciclo. Permite distinguir fases de vuelo (despegue, crucero, descenso), diferenciando cuando los valores de sensor son similares.
+- **Rolling inter-ciclo**: tendencia acumulada de degradación entre ciclos. Media calculada en ventanas de 5 y 10 ciclos, más pendiente lineal (slope) sobre ventana de 10 ciclos.
 - **Estadísticos intra-ciclo**: máximo y desviación estándar del ciclo actual, para capturar comportamiento bajo máxima demanda y estabilidad del sensor.
 
-Total: **118 features**.
+Total: **118 features adicionales creadas**.
 
 ---
 
 ## Modelo: XGBoost con Optuna
 
-- **Baseline**: `XGBRegressor` con parámetros estándar + early stopping (30 rondas).
-- **Optimización**: 50 trials con **Optuna**; la métrica de validación se calcula sobre predicciones *agregadas por ciclo* (no por observación), alineando la optimización con el objetivo real.
-- **Split**: leave-one-unit-out temporal — todos los ciclos de una unidad van íntegros a train o validación, nunca mezclados.
+- **Modelo Baseline**: `XGBRegressor` con parámetros estándar + early stopping (30 rondas).
+- **Fase de Optimización**: 50 trials con **algoritmo Optuna**; la métrica de validación para encontrar los mejores hiper parámetros se calcula sobre métricas *agregadas por cada ciclo entero* (no por cada observación), alineando la optimización y la evaluación final del modelo usando la misma métrica calculada.
+- **Split**: leave-one-unit-out temporal — todos los ciclos de una unidad van íntegros a train o validación, nunca mezclados, esto es, se utiliza la data de motores turbofan diferentes para train, evaluación, y test.
 
 ---
 
@@ -60,19 +60,12 @@ Total: **118 features**.
 | R² | Coeficiente de determinación |
 | NASA Score (S) | Métrica asimétrica: penaliza más las predicciones tardías (`RUL_pred > RUL_real`) que las adelantadas, dado que predecir vida restante cuando el motor ya está fallando es más peligroso |
 
-Fórmula NASA Score:
-
-```
-S = Σ exp( d / 10) − 1   si d > 0  (predicción tardía)
-S = Σ exp(−d / 13) − 1   si d ≤ 0  (predicción adelantada)
-donde d = RUL_pred − RUL_real
-```
 
 ---
 
 ## Artefactos guardados
 
-Los tres archivos necesarios para inferencia se encuentran en `models/`:
+Los tres archivos necesarios para inferencia se han almacenado en `models/`:
 
 | Archivo | Contenido |
 |---|---|
@@ -86,7 +79,7 @@ Los tres archivos necesarios para inferencia se encuentran en `models/`:
 
 ```
 ├── EDA_N-CMAPSS_Fc3.ipynb          # Análisis exploratorio del dataset
-├── XGBoost_N-CMAPSS_Fc3.ipynb      # Pipeline completo: FE → entrenamiento → evaluación
+├── XGBoost_N-CMAPSS_Fc3.ipynb      # Pipeline FE → entrenamiento → evaluación
 ├── desarrollo_teorico.ipynb         # Marco teórico y justificación metodológica
 ├── models/
 │   ├── xgb_fc3_model.joblib
